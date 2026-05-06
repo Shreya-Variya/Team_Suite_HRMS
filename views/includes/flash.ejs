@@ -1,0 +1,61 @@
+<div class="custom-toast-container">
+  <% if(success && success.length > 0) { %>
+    <div class="custom-toast success">
+      <span><%= success[0] %></span>
+      <button onclick="this.parentElement.remove()">×</button>
+    </div>
+  <% } %>
+
+<% if(error && error.length > 0) { %> <div class="custom-toast error"> <span><%= error[0] %></span> <button onclick="this.parentElement.remove()">×</button> </div>
+<% } %>
+
+</div>
+
+<style>
+.custom-toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+
+.custom-toast {
+  min-width: 250px;
+  margin-bottom: 10px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  animation: slideIn 0.4s ease;
+}
+
+.custom-toast.success {
+  background: #16a34a;
+}
+
+.custom-toast.error {
+  background: #dc2626;
+}
+
+.custom-toast button {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+</style>
+
+<script>
+setTimeout(() => {
+  document.querySelectorAll(".custom-toast").forEach(el => el.remove());
+}, 3000);
+</script>

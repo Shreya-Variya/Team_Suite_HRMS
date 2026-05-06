@@ -1,0 +1,244 @@
+<% layout("/layouts/boilerplate") %>
+
+<body>
+  <div class="form-wrapper">
+    <h1>Create Admin</h1>
+    <p class="subtitle">Add administrator details to manage the company</p>
+    <form action="/admin" method="post">
+      <!-- BASIC INFO -->
+      <div class="form-section">
+        <h3>Basic Information</h3>
+
+        <input
+          type="text"
+          name="employee[employeeId]"
+          placeholder="Employee ID *"
+          required
+        />
+
+        <input
+          type="text"
+          name="employee[employeeName]"
+          placeholder="Full Name *"
+          required
+        />
+
+        <div class="input-group">
+          <label>Date of Birth *</label>
+          <input type="date" name="employee[dob]" required />
+        </div>
+
+        <div class="input-group">
+          <label>Gender *</label>
+          <div class="radio-group">
+            <label>
+              <input
+                type="radio"
+                name="employee[gender]"
+                value="Male"
+                required
+              />
+              &nbsp;Male
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="employee[gender]"
+                value="Female"
+                required
+              />
+              &nbsp;Female
+            </label>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Marital Status</label>
+          <div class="checkbox-inline">
+            <input
+              type="checkbox"
+              name="employee[maritalStatus]"
+              value="true"
+            />
+            <span>Married</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTACT -->
+      <div class="form-section">
+        <h3>Contact Details</h3>
+
+        <input
+          type="email"
+          name="employee[email]"
+          placeholder="Email *"
+          required
+        />
+
+        <input
+          type="tel"
+          name="employee[mobileNo]"
+          placeholder="Mobile Number *"
+          required
+        />
+      </div>
+
+      <!-- ADDRESS -->
+      <div class="form-section">
+        <h3>Address</h3>
+
+        <input
+          type="text"
+          name="employee[address][street]"
+          placeholder="Street *"
+          required
+        />
+
+        <input
+          type="text"
+          name="employee[address][city]"
+          placeholder="City *"
+          required
+        />
+
+        <input
+          type="text"
+          name="employee[address][state]"
+          placeholder="State *"
+          required
+        />
+      </div>
+
+      <!-- PROFESSIONAL -->
+      <div class="form-section">
+        <h3>Professional Details</h3>
+
+        <input
+          type="text"
+          name="employee[education]"
+          placeholder="Education *"
+          required
+        />
+
+        <input
+          type="number"
+          name="employee[experience]"
+          placeholder="Experience (Years) *"
+          required
+        />
+
+        <div class="input-group">
+          <label>Joining Date *</label>
+          <input type="date" name="employee[joinDate]" required />
+        </div>
+
+        <input
+          type="text"
+          name="employee[companyName]"
+          placeholder="Company Name *"
+          required
+        />
+
+        <select name="employee[department]" id="departmentSelect" required>
+          <option value="">Select Department</option>
+        </select>
+
+        <select name="employee[jobRole]" id="jobRoleSelect" required>
+          <option value="">Select Job Role</option>
+        </select>
+      </div>
+
+      <button type="submit" class="submit-btn">Create Admin</button>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const departmentSelect = document.getElementById("departmentSelect");
+      const jobRoleSelect = document.getElementById("jobRoleSelect");
+
+      // Load Departments
+      async function loadDepartments() {
+        try {
+          const res = await fetch("/getdepartment");
+          const result = await res.json();
+
+          console.log("Departments Response:", result);
+
+          if (!result.success) {
+            console.error("Failed to load departments");
+            return;
+          }
+
+          const departments = result.data;
+
+          departmentSelect.innerHTML =
+            '<option value="">Select Department</option>';
+
+          departments.forEach((dep) => {
+            const option = document.createElement("option");
+            option.value = dep._id;
+            option.textContent = dep.name;
+            departmentSelect.appendChild(option);
+          });
+        } catch (err) {
+          console.error("Error loading departments:", err);
+        }
+      }
+
+      // Load Job Roles based on selected department
+      async function loadJobRoles(departmentId) {
+        try {
+          console.log("Selected Department ID:", departmentId);
+
+          const res = await fetch(`/jobrole/${departmentId}`);
+          const result = await res.json();
+
+          console.log("JobRole Response:", result);
+
+          jobRoleSelect.innerHTML = '<option value="">Select Job Role</option>';
+
+          if (!result.success) {
+            console.error("Failed to load job roles");
+            return;
+          }
+
+          const roles = result.data;
+
+          // ⚠️ If no roles found
+          if (!roles || roles.length === 0) {
+            const option = document.createElement("option");
+            option.textContent = "No roles available";
+            option.disabled = true;
+            jobRoleSelect.appendChild(option);
+            return;
+          }
+
+          roles.forEach((role) => {
+            const option = document.createElement("option");
+            option.value = role._id;
+            option.textContent = role.role;
+            jobRoleSelect.appendChild(option);
+          });
+        } catch (err) {
+          console.error("Error loading job roles:", err);
+        }
+      }
+
+      // When department changes
+      departmentSelect.addEventListener("change", function () {
+        const deptId = this.value;
+
+        if (deptId) {
+          loadJobRoles(deptId);
+        } else {
+          jobRoleSelect.innerHTML = '<option value="">Select Job Role</option>';
+        }
+      });
+
+      // Initial call
+      loadDepartments();
+    });
+  </script>
+</body>

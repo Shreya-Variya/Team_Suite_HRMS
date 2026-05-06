@@ -1,0 +1,166 @@
+<% layout("/layouts/boilerplate") %>
+
+<body>
+  <div class="form-wrapper">
+    <h1>Create Company</h1>
+    <p class="subtitle">Enter company details to onboard into Team Suite</p>
+
+    <form action="/company" method="post" enctype="multipart/form-data">
+      <!-- BASIC INFO -->
+      <div class="form-section">
+        <h3>Basic Information</h3>
+
+        <input
+          type="text"
+          name="company[companyName]"
+          placeholder="Company Name *"
+          required
+        />
+
+        <input
+          type="email"
+          name="company[email]"
+          placeholder="Company Email *"
+          required
+        />
+
+        <input
+          type="url"
+          name="company[website]"
+          placeholder="Website (optional)"
+        />
+
+        <input
+          type="text"
+          name="company[domain]"
+          placeholder="Domain"
+          required
+        />
+
+        <textarea
+          name="company[about]"
+          placeholder="About Company *"
+          required
+        ></textarea>
+      </div>
+
+      <!-- ADDRESS -->
+      <div class="form-section">
+        <h3>Address</h3>
+
+        <input
+          type="text"
+          name="company[address][street]"
+          placeholder="Street *"
+          required
+        />
+
+        <input
+          type="text"
+          name="company[address][city]"
+          placeholder="City *"
+          required
+        />
+
+        <input
+          type="text"
+          name="company[address][state]"
+          placeholder="State *"
+          required
+        />
+      </div>
+
+      <!-- WORKING DAYS -->
+      <div class="form-section">
+        <h3>Working Days</h3>
+
+        <div class="checkbox-grid">
+          <label
+            ><input
+              type="checkbox"
+              name="company[workingDay][monday]"
+              value="true"
+            />
+            Monday</label
+          >
+          <label
+            ><input
+              type="checkbox"
+              name="company[workingDay][tuesday]"
+              value="true"
+            />
+            Tuesday</label
+          >
+          <label
+            ><input
+              type="checkbox"
+              name="company[workingDay][wednesday]"
+              value="true"
+            />
+            Wednesday</label
+          >
+          <label
+            ><input
+              type="checkbox"
+              name="company[workingDay][thursday]"
+              value="true"
+            />
+            Thursday</label
+          >
+          <label
+            ><input
+              type="checkbox"
+              name="company[workingDay][friday]"
+              value="true"
+            />
+            Friday</label
+          >
+          <label
+            ><input
+              type="checkbox"
+              name="company[workingDay][saturday]"
+              value="true"
+            />
+            Saturday</label
+          >
+          <label
+            ><input
+              type="checkbox"
+              name="company[workingDay][sunday]"
+              value="true"
+            />
+            Sunday</label
+          >
+        </div>
+      </div>
+
+      <!-- WORKING HOURS -->
+      <div class="form-section">
+        <h3>Working Hours</h3>
+
+        <input
+          type="text"
+          name="company[startTime]"
+          placeholder="Start Time: e.g., 09:00 AM"
+          required
+        />
+
+        <input
+          type="text"
+          name="company[endTime]"
+          placeholder="End Time: e.g., 06:00 PM"
+          required
+        />
+      </div>
+
+      <!-- LOGO UPLOAD -->
+      <div class="form-section">
+        <h3>Company Logo</h3>
+
+        <input type="file" name="company[logo]" required />
+      </div>
+
+      <button type="submit" class="submit-btn">Create Company</button>
+    </form>
+  </div>
+</body>
