@@ -1,9 +1,45 @@
 const passport = require("passport");
-const nodemailer = require("nodemailer");
+// const nodemailer = require("nodemailer");
 const UserLogin = require("../models/login.js");
 const Employee = require("../models/employee.js");
 const VerificationCode = require("../models/verificationcode.js");
 const { text } = require("stream/consumers");
+const SibApiV3Sdk = require("sib-api-v3-sdk");
+
+const defaultClient = SibApiV3Sdk.ApiClient.instance;
+
+const apiKey = defaultClient.authentications["api-key"];
+
+apiKey.apiKey = process.env.BREVO_API;
+
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+
+async function sendOTPMail(verificationCode) {
+  try {
+    const sendSmtpEmail = {
+      sender: {
+        name: "Team Suite",
+        email: "teamsuitehrms@gmail.com",
+      },
+
+      to: [
+        {
+          email: email,
+        },
+      ],
+
+      subject: "Your Verification Code",
+
+      htmlContent: `<h3>Your verification code for forgot password is: ${verificationCode}</h3>`,
+    };
+
+    const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
+
+    console.log("MAIL SENT:", response);
+  } catch (err) {
+    console.log("MAIL ERROR:", err);
+  }
+}
 
 //Controller that authenticate the user
 module.exports.login = (req, res, next) => {
@@ -68,20 +104,20 @@ module.exports.sendcode = async (req, res) => {
     } else {
       const verificationCode = Math.floor(100000 + Math.random() * 900000);
       console.log(verificationCode);
-      let transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: process.env.EMAIL,
-          pass: process.env.APP_PASSKEY,
-        },
-      });
-      let mailOptions = {
-        from: '"Team Suite" <teamsuitehrms@gmail.com>',
-        to: email,
-        subject: "Your Verification Code",
-        html: `<h3>Your verification code for forgot password is: ${verificationCode}</h3>`,
-      };
-      await transporter.sendMail(mailOptions);
+      // let transporter = nodemailer.createTransport({
+      //   service: "gmail",
+      //   auth: {
+      //     user: process.env.EMAIL,
+      //     pass: process.env.APP_PASSKEY,
+      //   },
+      // });
+      // let mailOptions = {
+      //   from: '"Team Suite" <teamsuitehrms@gmail.com>',
+      //   to: email,
+      //   subject: "Your Verification Code",
+      //   html: `<h3>Your verification code for forgot password is: ${verificationCode}</h3>`,
+      // };
+      // await transporter.sendMail(mailOptions);
 
       var generateCode = new VerificationCode({
         emailFrom: "variyashreya2005@gmail.com",
@@ -92,6 +128,8 @@ module.exports.sendcode = async (req, res) => {
 
       let saveGeneratedCode = await generateCode.save();
       console.log(saveGeneratedCode);
+
+      sendOTPMail(verificationCode);
 
       return res.status(200).json({
         success: true,

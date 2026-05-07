@@ -1,9 +1,53 @@
 const mongoose = require("mongoose");
-const nodemailer = require("nodemailer");
+// const nodemailer = require("nodemailer");
 const generatePassword = require("generate-password");
 const UserLogin = require("../models/login.js");
 const Employee = require("../models/employee.js");
 const Company = require("../models/company.js");
+const SibApiV3Sdk = require("sib-api-v3-sdk");
+
+const defaultClient = SibApiV3Sdk.ApiClient.instance;
+
+const apiKey = defaultClient.authentications["api-key"];
+
+apiKey.apiKey = process.env.BREVO_API;
+
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+
+async function sendEmployeeMail(email, password) {
+  try {
+    const sendSmtpEmail = {
+      sender: {
+        name: "Team Suite",
+        email: "teamsuitehrms@gmail.com",
+      },
+
+      to: [
+        {
+          email: email,
+        },
+      ],
+
+      subject: "Your Login Credentials",
+
+      htmlContent: `
+        <h2>Welcome to Team Suite HRMS</h2>
+
+        <h3>Username: ${email}</h3>
+
+        <h3>Password: ${password}</h3>
+
+        <p>Please reset your password after first login.</p>
+      `,
+    };
+
+    const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
+
+    console.log("MAIL SENT:", response);
+  } catch (err) {
+    console.log("MAIL ERROR:", err);
+  }
+}
 
 //Controller that add the employee details into database and send a mail to employee of username and password
 module.exports.addemployee = async (req, res) => {
@@ -44,20 +88,21 @@ module.exports.addemployee = async (req, res) => {
           strict: true,
         });
         console.log("Generated Password : ", password);
-        let transporter = nodemailer.createTransport({
-          service: "gmail",
-          auth: {
-            user: process.env.EMAIL,
-            pass: process.env.APP_PASSKEY,
-          },
-        });
-        let mailOptions = {
-          from: '"Team Suite" <teamsuitehrms@gmail.com>',
-          to: req.body.employee.email,
-          subject: "Your Login Credentials",
-          html: `<h3>Username: ${req.body.employee.email}</h3><h3>Password: ${password}</h3><h4>Note : Reset your password now.</h4>`,
-        };
-        await transporter.sendMail(mailOptions);
+
+        // let transporter = nodemailer.createTransport({
+        //   service: "gmail",
+        //   auth: {
+        //     user: process.env.EMAIL,
+        //     pass: process.env.APP_PASSKEY,
+        //   },
+        // });
+        // let mailOptions = {
+        //   from: '"Team Suite" <teamsuitehrms@gmail.com>',
+        //   to: req.body.employee.email,
+        //   subject: "Your Login Credentials",
+        //   html: `<h3>Username: ${req.body.employee.email}</h3><h3>Password: ${password}</h3><h4>Note : Reset your password now.</h4>`,
+        // };
+        // await transporter.sendMail(mailOptions);
         const empId = saveEmployee._id;
         console.log("Employee Id : ", empId);
         const user = new UserLogin({
@@ -66,6 +111,9 @@ module.exports.addemployee = async (req, res) => {
         });
         const registerUser = await UserLogin.register(user, password);
         console.log("User Login Details : ", registerUser);
+
+        sendEmployeeMail(req.body.employee.email, password);
+
         return res
           .status(200)
           .json({ success: true, message: "Employee Added Successfully." });
