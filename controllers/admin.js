@@ -54,13 +54,20 @@ module.exports.addAdmin = async (req, res) => {
         //Send Mail using SMTP Server
         let transporter = nodemailer.createTransport({
           host: "smtp.gmail.com",
-          port: 465,
-          secure: true,
+          port: 587,
+          secure: false,
+          requireTLS: true,
           auth: {
             user: process.env.EMAIL,
             pass: process.env.APP_PASSKEY,
           },
+          tls: {
+            rejectUnauthorized: false,
+          },
         });
+
+        await transporter.verify();
+        console.log("SMTP READY");
         let mailOptions = {
           from: '"Team Suite" <teamsuitehrms@gmail.com>',
           to: req.body.employee.email,
