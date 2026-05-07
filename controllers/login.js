@@ -14,7 +14,7 @@ apiKey.apiKey = process.env.BREVO_API;
 
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
-async function sendOTPMail(verificationCode) {
+async function sendOTPMail(email, verificationCode) {
   try {
     const sendSmtpEmail = {
       sender: {
@@ -129,7 +129,7 @@ module.exports.sendcode = async (req, res) => {
       let saveGeneratedCode = await generateCode.save();
       console.log(saveGeneratedCode);
 
-      sendOTPMail(verificationCode);
+      sendOTPMail(email, verificationCode);
 
       return res.status(200).json({
         success: true,
