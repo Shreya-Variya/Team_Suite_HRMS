@@ -48,8 +48,7 @@ module.exports.addAdmin = async (req, res) => {
         });
         const registerUser = await UserLogin.register(user, password);
         console.log(registerUser);
-        req.flash("success", "Admin create & register successfully.");
-        return res.redirect("/");
+
         let transporter = nodemailer.createTransport({
           service: "gmail",
           auth: {
@@ -63,11 +62,16 @@ module.exports.addAdmin = async (req, res) => {
           subject: "Your Login Credentials",
           html: `<h3>Username: ${req.body.employee.email}</h3><h3>Password: ${password}</h3><h4>Note : Reset your password now.</h4>`,
         };
-        setImmediate(() => {
-          transporter
-            .sendMail(mailOptions)
-            .then(() => console.log("Email sent successfully"))
-            .catch((err) => console.log("Email failed:", err));
+
+        req.flash("success", "Admin create & register successfully.");
+        return res.redirect("/");
+        setImmediate(async () => {
+          try {
+            await transporter.sendMail(mailOptions);
+            console.log("Email sent successfully");
+          } catch (err) {
+            console.log("Email failed:", err);
+          }
         });
       }
     }
