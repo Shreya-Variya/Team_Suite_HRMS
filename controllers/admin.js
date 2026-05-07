@@ -63,16 +63,14 @@ module.exports.addAdmin = async (req, res) => {
           html: `<h3>Username: ${req.body.employee.email}</h3><h3>Password: ${password}</h3><h4>Note : Reset your password now.</h4>`,
         };
 
+        try {
+          await transporter.sendMail(mailOptions);
+          console.log("Email sent successfully");
+        } catch (err) {
+          console.log("Email failed:", err);
+        }
         req.flash("success", "Admin create & register successfully.");
         return res.redirect("/");
-        setImmediate(async () => {
-          try {
-            await transporter.sendMail(mailOptions);
-            console.log("Email sent successfully");
-          } catch (err) {
-            console.log("Email failed:", err);
-          }
-        });
       }
     }
   } catch (err) {
