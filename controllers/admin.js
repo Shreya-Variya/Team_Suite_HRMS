@@ -3,7 +3,9 @@ const Employee = require("../models/employee.js");
 const Company = require("../models/company.js");
 const UserLogin = require("../models/login.js");
 const generatePassword = require("generate-password");
-const nodemailer = require("nodemailer");
+// const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 //Controller for create admin
 module.exports.addAdmin = async (req, res) => {
@@ -49,26 +51,41 @@ module.exports.addAdmin = async (req, res) => {
         const registerUser = await UserLogin.register(user, password);
         console.log(registerUser);
 
-        let transporter = nodemailer.createTransport({
-          service: "gmail",
-          auth: {
-            user: process.env.EMAIL,
-            pass: process.env.APP_PASSKEY,
-          },
-        });
-        let mailOptions = {
-          from: '"Team Suite" <teamsuitehrms@gmail.com>',
-          to: req.body.employee.email,
-          subject: "Your Login Credentials",
-          html: `<h3>Username: ${req.body.employee.email}</h3><h3>Password: ${password}</h3><h4>Note : Reset your password now.</h4>`,
-        };
+        //Send Mail using SMTP Server
+        // let transporter = nodemailer.createTransport({
+        //   service: "gmail",
+        //   auth: {
+        //     user: process.env.EMAIL,
+        //     pass: process.env.APP_PASSKEY,
+        //   },
+        // });
+        // let mailOptions = {
+        //   from: '"Team Suite" <teamsuitehrms@gmail.com>',
+        //   to: req.body.employee.email,
+        //   subject: "Your Login Credentials",
+        //   html: `<h3>Username: ${req.body.employee.email}</h3><h3>Password: ${password}</h3><h4>Note : Reset your password now.</h4>`,
+        // };
 
+        // try {
+        //   await transporter.sendMail(mailOptions);
+        //   console.log("Email sent successfully");
+        // } catch (err) {
+        //   console.log("Email failed:", err);
+        // }
+
+        //Send Mail Using Resend
         try {
-          await transporter.sendMail(mailOptions);
-          console.log("Email sent successfully");
-        } catch (err) {
-          console.log("Email failed:", err);
+          const response = await resend.emails.send({
+            from: '"Team Suite" <onboarding@resend.dev>',
+            to: req.body.employee.email,
+            subject: "Your Login Credentials",
+            html: `<h3>Username: ${req.body.employee.email}</h3><h3>Password: ${password}</h3><h4>Note : Reset your password now.</h4>`,
+          });
+          console.log("EMAIL SENT:", response);
+        } catch (mailErr) {
+          console.log("EMAIL ERROR:", mailErr);
         }
+
         req.flash("success", "Admin create & register successfully.");
         return res.redirect("/");
       }
