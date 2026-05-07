@@ -76,7 +76,7 @@ module.exports.addAdmin = async (req, res) => {
         //Send Mail Using Resend
         try {
           const response = await resend.emails.send({
-            from: '"Team Suite" <onboarding@resend.dev>',
+            from: "Team Suite <onboarding@resend.dev>",
             to: req.body.employee.email,
             subject: "Your Login Credentials",
             html: `<h3>Username: ${req.body.employee.email}</h3><h3>Password: ${password}</h3><h4>Note : Reset your password now.</h4>`,
